@@ -1,5 +1,3 @@
-<img src="https://media.giphy.com/media/QhNgpDotBASjWj7asJ/giphy.gif" width="800" height="480" />
-
 # Installation:  
 0. **Unlock** `closeSim.ps1` file if it's locked: open properties and click unlock in the bottom of the window.  
 0. If you've installed Playdate SDK to the default path (C:\user\%Username%\Documents\PlaydateSDK) then just **run** `ADD_ENV_VARIABLE.cmd` to add env variables:  
