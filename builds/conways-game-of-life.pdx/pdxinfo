@@ -1,0 +1,7 @@
+name=Conway's Game of Life
+author=Kyle
+description=This is an implementation of Conway's Game of Life for the Playdate
+version=0.0.1
+buildNumber=0
+pdxversion=10900
+buildtime=702233163
