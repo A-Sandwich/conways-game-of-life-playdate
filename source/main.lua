@@ -8,6 +8,7 @@ import "CoreLibs/object"
 import "CoreLibs/graphics"
 import "CoreLibs/sprites"
 import "CoreLibs/timer"
+import "CoreLibs/crank"
 
 -- Declaring this "gfx" shorthand will make your life easier. Instead of having
 -- to preface all graphics calls with "playdate.graphics", just use "gfx."
@@ -24,6 +25,8 @@ local max_y_index <const> = 23
 local min_index <const> = 0
 local seconds_between_state_update <const> = .5 * 1000
 local animated_cursor = nil
+local is_auto_evolving = false
+local crank_degrees = 0
 -- Here's our player sprite declaration. We'll scope it to this file because
 -- several functions need to access it.
 
@@ -101,6 +104,22 @@ function wrap_y_input(y_index)
     return y_index
 end
 
+function playdate.cranked(change, acceleratedChange)
+    is_auto_evolving = false
+    crank_degrees = change + crank_degrees
+    if crank_degrees > 90 then
+        update_state()
+        crank_degrees = crank_degrees - 90
+    elseif crank_degrees < -90 then
+        crank_degrees = crank_degrees + 90
+        update_state()
+    end
+end
+
+function playdate.crankDocked()
+    crank_degrees = 0
+end
+
 function wrap_x_input(x_index)
     if x_index < min_index then
         x_index = max_x_index
@@ -125,8 +144,8 @@ function input()
         invert_cell_state(animated_cursor.x_index, animated_cursor.y_index)
     end
 
-    if playdate.buttonJustPressed(playdate.kButtonb) then
-        
+    if playdate.buttonJustPressed(playdate.kButtonB) then
+        is_auto_evolving = not is_auto_evolving
     end
 end
 
@@ -135,6 +154,11 @@ function invert_cell_state(x_index, y_index)
     current_cell.color = get_inverted_color(current_cell.color)
     current_cell.status = convert_color_to_cell_status(current_cell.color)
     draw_rect(current_cell)
+end
+
+function auto_update_state()
+    if not is_auto_evolving then return end
+    update_state()
 end
 
 function update_state()
@@ -228,7 +252,6 @@ function shallow_copy(orig)
     local orig_type = type(orig)
     local copy
     if orig_type == 'table' then
-        print("copying table")
         copy = {}
         for orig_key, orig_value in pairs(orig) do
             --- This will handle a table of tables but you can't go deeper than that.
@@ -259,4 +282,4 @@ function update_cursor()
     gfx.drawRoundRect(rect, 1)
 end
 
-playdate.timer.keyRepeatTimerWithDelay(seconds_between_state_update, seconds_between_state_update, update_state)
+playdate.timer.keyRepeatTimerWithDelay(seconds_between_state_update, seconds_between_state_update, auto_update_state)
