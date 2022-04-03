@@ -19,8 +19,8 @@ local white <const> = gfx.kColorWhite
 local black <const> = gfx.kColorBlack
 local alive <const> = 1
 local dead <const> = 0
-local max_x_index <const> = 23
-local max_y_index <const> = 39
+local max_x_index <const> = 39
+local max_y_index <const> = 23
 local min_index <const> = 0
 local seconds_between_state_update <const> = .5 * 1000
 local animated_cursor = nil
@@ -51,8 +51,8 @@ end
 
 function setup_cursor()
     animated_cursor = {
-        index_x=0,
-        index_y=0
+        x_index=0,
+        y_index=0
     }
 end
 
@@ -78,13 +78,63 @@ function playdate.update()
     gfx.sprite.update()
     for _, row in pairs(current_state) do 
         for _, cell in pairs(row) do
-            gfx.setColor(cell.color)
-            rect = playdate.geometry.rect.new(cell.x, cell.y, cell.size, cell.size)
-            gfx.fillRect(rect)
+            draw_rect(cell)
         end
     end
+    input()
     update_cursor()
     playdate.timer.updateTimers()
+end
+
+function draw_rect(cell)
+    gfx.setColor(cell.color)
+    rect = playdate.geometry.rect.new(cell.x, cell.y, cell.size, cell.size)
+    gfx.fillRect(rect)
+end
+
+function wrap_y_input(y_index)
+    if y_index < min_index then
+        y_index = max_y_index
+    elseif y_index > max_y_index then
+        y_index = 0
+    end
+    return y_index
+end
+
+function wrap_x_input(x_index)
+    if x_index < min_index then
+        x_index = max_x_index
+    elseif x_index > max_x_index then
+        x_index = min_index
+    end
+    return x_index
+end
+
+function input()
+    if playdate.buttonJustPressed(playdate.kButtonUp) then
+        animated_cursor.y_index = wrap_y_input(animated_cursor.y_index - 1)
+    elseif playdate.buttonJustPressed(playdate.kButtonDown) then
+        animated_cursor.y_index = wrap_y_input(animated_cursor.y_index + 1)
+    elseif playdate.buttonJustPressed(playdate.kButtonLeft) then
+        animated_cursor.x_index = wrap_x_input(animated_cursor.x_index - 1)
+    elseif playdate.buttonJustPressed(playdate.kButtonRight) then
+        animated_cursor.x_index = wrap_x_input(animated_cursor.x_index + 1)
+    end
+
+    if playdate.buttonJustPressed(playdate.kButtonA) then
+        invert_cell_state(animated_cursor.x_index, animated_cursor.y_index)
+    end
+
+    if playdate.buttonJustPressed(playdate.kButtonb) then
+        
+    end
+end
+
+function invert_cell_state(x_index, y_index)
+    local current_cell = current_state[y_index][x_index]
+    current_cell.color = get_inverted_color(current_cell.color)
+    current_cell.status = convert_color_to_cell_status(current_cell.color)
+    draw_rect(current_cell)
 end
 
 function update_state()
@@ -203,7 +253,7 @@ function get_inverted_color(color)
 end
 
 function update_cursor()
-    local current_cell = current_state[animated_cursor.index_y][animated_cursor.index_x]
+    local current_cell = current_state[animated_cursor.y_index][animated_cursor.x_index]
     gfx.setColor(get_inverted_color(current_cell.color))
     rect = playdate.geometry.rect.new(current_cell.x, current_cell.y, current_cell.size, current_cell.size)
     gfx.drawRoundRect(rect, 1)
