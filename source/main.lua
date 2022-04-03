@@ -27,6 +27,7 @@ local seconds_between_state_update <const> = .5 * 1000
 local animated_cursor = nil
 local is_auto_evolving = false
 local crank_degrees = 0
+local pop = playdate.sound.sampleplayer.new("Sound/pop")
 -- Here's our player sprite declaration. We'll scope it to this file because
 -- several functions need to access it.
 
@@ -73,6 +74,7 @@ function setup_oscillator()
     temp.status = alive
     current_state[21][12] = temp
 end
+
 
 setup_state()
 setup_cursor()
@@ -141,6 +143,7 @@ function input()
     end
 
     if playdate.buttonJustPressed(playdate.kButtonA) then
+        pop:play()
         invert_cell_state(animated_cursor.x_index, animated_cursor.y_index)
     end
 
@@ -166,6 +169,9 @@ function update_state()
     for key_y, row in pairs(current_state) do
         for key_x, _ in pairs(row) do
             next_state[key_y][key_x] = get_cell_evoluation(key_x, key_y, current_state)
+            if next_state[key_y][key_x].status ~= current_state[key_y][key_x].status then
+                pop:play()
+            end
         end
     end
     current_state = next_state
