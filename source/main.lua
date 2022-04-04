@@ -56,7 +56,8 @@ end
 function setup_cursor()
     animated_cursor = {
         x_index=0,
-        y_index=0
+        y_index=0,
+        size=scale
     }
 end
 
@@ -284,8 +285,17 @@ end
 function update_cursor()
     local current_cell = current_state[animated_cursor.y_index][animated_cursor.x_index]
     gfx.setColor(get_inverted_color(current_cell.color))
-    rect = playdate.geometry.rect.new(current_cell.x, current_cell.y, current_cell.size, current_cell.size)
+    rect = playdate.geometry.rect.new(current_cell.x, current_cell.y, animated_cursor.size, animated_cursor.size)
     gfx.drawRoundRect(rect, 1)
 end
 
+function pulse_cursor()
+    if animated_cursor.size == scale then
+        animated_cursor.size = animated_cursor.size - 2
+    else
+        animated_cursor.size = animated_cursor.size + 2
+    end
+end
+
+playdate.timer.keyRepeatTimerWithDelay(seconds_between_state_update, seconds_between_state_update, pulse_cursor)
 playdate.timer.keyRepeatTimerWithDelay(seconds_between_state_update, seconds_between_state_update, auto_update_state)
