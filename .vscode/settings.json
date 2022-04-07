@@ -12,5 +12,6 @@
       "args": ["-ExecutionPolicy", "Bypass"]
     }
   },
-  "terminal.integrated.defaultProfile.windows": "PowerShell"
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+  "playdate.output": "bin/Output.pdx"
 }

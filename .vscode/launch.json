@@ -6,6 +6,15 @@
             "request": "launch",
             "name": "Build and Run (Simulator)",
             "preLaunchTask": "Build and Run (Simulator)"
-        }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch-mac",
+            "program": "${workspaceFolder}/.vscode/run.js",
+            "preLaunchTask": "build",
+            "internalConsoleOptions": "neverOpen",
+            "env": { "PLAYDATE_OUTPUT" : "${config:playdate.output}" }
+          }
     ]
 }
